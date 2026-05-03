@@ -1,4 +1,4 @@
-const text = ["Graphic Design", "Web Developer", "UI/UX Designer"];
+const text = ["Full-Stack Developer", "Web Developer", "UI/UX Designer"];
 let index = 0;
 let charIndex = 0;
 
@@ -114,8 +114,8 @@ typeEffect();
     // IntersectionObserver to update active link while scrolling (50% visibility threshold)
     const ioOptions = {
         root: null,
-        rootMargin: '0px',
-        threshold: 0.5
+        rootMargin: '-20% 0px -55% 0px',
+        threshold: 0.1
     };
 
     const observer = new IntersectionObserver((entries) => {
@@ -137,51 +137,77 @@ typeEffect();
 (function () {
     const heroPic = document.getElementById('heroPic');
     const imageModal = document.getElementById('imageModal');
-    if (!heroPic || !imageModal) return;
+    const modalImage = document.getElementById('modalImage');
+    if (!imageModal || !modalImage) return;
 
     const modalClose = imageModal.querySelector('.modal-close');
     let lastTouch = 0;
 
-    function openModal() {
-        imageModal.classList.add('open');
+    function openModal(src, alt = '') {
+        if (!src) return;
+        modalImage.src = src;
+        modalImage.alt = alt || 'Expanded view';
+        imageModal.classList.add('active');
         imageModal.setAttribute('aria-hidden', 'false');
         document.body.style.overflow = 'hidden';
     }
 
     function closeModal() {
-        imageModal.classList.remove('open');
+        imageModal.classList.remove('active');
         imageModal.setAttribute('aria-hidden', 'true');
         document.body.style.overflow = '';
+        modalImage.src = '';
     }
 
-    // Touch handler
-    heroPic.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        lastTouch = Date.now();
-        openModal();
-    }, { passive: false });
+    function bindClickableCard(card) {
+        const img = card.querySelector('img');
+        if (!img) return;
+        card.setAttribute('tabindex', '0');
 
-    // Click handler (ignore synthetic clicks after touch)
-    heroPic.addEventListener('click', (e) => {
-        if (Date.now() - lastTouch < 700) return;
-        openModal();
-    });
+        card.addEventListener('click', () => {
+            openModal(img.src, img.alt);
+        });
 
-    // Keyboard accessibility
-    heroPic.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        card.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openModal(img.src, img.alt);
+            }
+        });
+    }
+
+    // Hero image can also open the modal
+    if (heroPic) {
+        heroPic.addEventListener('touchend', (e) => {
             e.preventDefault();
-            openModal();
-        }
-    });
+            lastTouch = Date.now();
+            const img = heroPic.querySelector('img');
+            openModal(img?.src, img?.alt);
+        }, { passive: false });
 
-    // Close controls
+        heroPic.addEventListener('click', (e) => {
+            if (Date.now() - lastTouch < 700) return;
+            const img = heroPic.querySelector('img');
+            openModal(img?.src, img?.alt);
+        });
+
+        heroPic.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                const img = heroPic.querySelector('img');
+                openModal(img?.src, img?.alt);
+            }
+        });
+    }
+
+    document.querySelectorAll('.workshop-card').forEach(bindClickableCard);
+
     modalClose.addEventListener('click', closeModal);
     imageModal.addEventListener('click', (e) => {
-        if (e.target === imageModal) closeModal();
+        if (e.target === imageModal || e.target.classList.contains('modal-overlay')) closeModal();
     });
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && imageModal.classList.contains('open')) closeModal();
+        if (e.key === 'Escape' && imageModal.classList.contains('active')) closeModal();
     });
 })();
 
@@ -325,68 +351,108 @@ document.getElementById("userForm").addEventListener("submit", function (e) {
 // Robot and Developer interactive actions
 (function () {
     const robot = document.getElementById('robotImg');
-    const dev = document.getElementById('devImg');
+    const dev = document.getElementById('devScene');
 
-    // Robot: simple wave animation triggered on hover, focus, click or keyboard
+    // Robot: lifelike idle motion with reactions to hover, click and keyboard
     if (robot) {
-        let waving = false;
+        const robotWrap = robot.parentElement;
+        let animating = false;
+        let blinkTimer;
+        let resetTimer;
+
+        if (robotWrap) {
+            robotWrap.classList.add('robot-stage');
+        }
+
+        function clearRobotMotion() {
+            robot.style.setProperty('--robot-x', '0px');
+            robot.style.setProperty('--robot-y', '0px');
+            robot.style.setProperty('--robot-rotate', '0deg');
+        }
+
+        function blinkOnce() {
+            robot.classList.remove('robot-blink');
+            void robot.offsetWidth;
+            robot.classList.add('robot-blink');
+            setTimeout(() => robot.classList.remove('robot-blink'), 260);
+        }
+
+        function scheduleBlink() {
+            clearTimeout(blinkTimer);
+            blinkTimer = setTimeout(() => {
+                blinkOnce();
+                scheduleBlink();
+            }, 1800 + Math.random() * 2600);
+        }
+
         function startWave() {
-            if (waving) return;
-            waving = true;
+            if (animating) return;
+            animating = true;
             robot.classList.add('robot-wave');
-            // remove class after animation completes
             setTimeout(() => {
                 robot.classList.remove('robot-wave');
-                waving = false;
-            }, 1200);
+                animating = false;
+            }, 1100);
+        }
+
+        function playExcited() {
+            robot.classList.remove('robot-excited');
+            void robot.offsetWidth;
+            robot.classList.add('robot-excited');
+            setTimeout(() => robot.classList.remove('robot-excited'), 700);
+        }
+
+        function reactToPointer(event) {
+            if (!robotWrap) return;
+            const rect = robotWrap.getBoundingClientRect();
+            const x = ((event.clientX - rect.left) / rect.width) - 0.5;
+            const y = ((event.clientY - rect.top) / rect.height) - 0.5;
+            const moveX = Math.max(-8, Math.min(8, x * 16));
+            const moveY = Math.max(-6, Math.min(6, y * 12));
+            const rotate = Math.max(-8, Math.min(8, x * 14));
+
+            robot.style.setProperty('--robot-x', `${moveX}px`);
+            robot.style.setProperty('--robot-y', `${moveY}px`);
+            robot.style.setProperty('--robot-rotate', `${rotate}deg`);
+        }
+
+        function settleRobot() {
+            clearTimeout(resetTimer);
+            resetTimer = setTimeout(clearRobotMotion, 120);
         }
 
         robot.addEventListener('mouseenter', startWave);
         robot.addEventListener('focus', startWave);
-        robot.addEventListener('click', startWave);
+        robot.addEventListener('click', () => {
+            playExcited();
+            startWave();
+            blinkOnce();
+        });
+
+        robot.addEventListener('mousemove', reactToPointer);
+        if (robotWrap) {
+            robotWrap.addEventListener('mousemove', reactToPointer);
+            robotWrap.addEventListener('mouseleave', settleRobot);
+        }
+        robot.addEventListener('mouseleave', settleRobot);
         robot.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
+                playExcited();
                 startWave();
+                blinkOnce();
             }
         });
+
+        scheduleBlink();
     }
 
-    // Developer: show a typing indicator (three dots) on hover/focus, toggle on click
+    // Developer coding scene: animate code running text and highlight interaction
     if (dev) {
-        function showTyping() {
-            if (document.getElementById('typingIndicator')) return;
-            const wrapper = dev.parentElement || document.body;
-            const el = document.createElement('div');
-            el.id = 'typingIndicator';
-            el.className = 'typing-indicator';
-            el.innerHTML = '<span></span><span></span><span></span>';
-            wrapper.appendChild(el);
-        }
-
-        function hideTyping() {
-            const el = document.getElementById('typingIndicator');
-            if (el) el.remove();
-        }
-
-        dev.addEventListener('mouseenter', showTyping);
-        dev.addEventListener('focus', showTyping);
-        dev.addEventListener('mouseleave', hideTyping);
-        dev.addEventListener('blur', hideTyping);
-
-        // Click toggles the typing indicator (useful for touch)
-        dev.addEventListener('click', () => {
-            if (!document.getElementById('typingIndicator')) showTyping();
-            else hideTyping();
-        });
-
-        dev.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                if (!document.getElementById('typingIndicator')) showTyping();
-                else hideTyping();
-            }
-        });
+        const runPill = dev.querySelector('.run-pill');
+        const output = dev.querySelector('.screen-output');
+        if (runPill) runPill.textContent = 'PASS';
+        if (output) output.textContent = 'BUILD SUCCESS';
     }
 })();
 
@@ -426,14 +492,6 @@ fadeItems.forEach(card => {
         if (!card.hasAttribute('role')) card.setAttribute('role', 'button');
         card.setAttribute('aria-pressed', 'false');
 
-        // Add a small hint (optional) if missing
-        if (!card.querySelector('.action-hint')) {
-            const hint = document.createElement('span');
-            hint.className = 'action-hint';
-            hint.textContent = 'Click or press Enter';
-            card.querySelector('h3')?.appendChild(hint);
-        }
-
         // Toggle selected state (visual highlight)
         function toggleSelected() {
             const isSelected = card.classList.toggle('selected');
@@ -455,10 +513,8 @@ fadeItems.forEach(card => {
 })();
 
 const technologies = [
-    { name: "GitHub", img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" },
-    { name: "Jira", img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jira/jira-original.svg" },
-    { name: "Figma", img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg" },
     { name: "HTML5", img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" },
+    { name: "CSS3", img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" },
     { name: "Sass", img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sass/sass-original.svg" },
     { name: "Bootstrap", img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bootstrap/bootstrap-original.svg" },
     { name: "JavaScript", img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" },
@@ -467,10 +523,14 @@ const technologies = [
     { name: "Vue.js", img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg" },
     { name: "TypeScript", img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" },
     { name: "PHP", img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-original.svg" },
-
+    { name: "Laravel", img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/laravel/laravel-original.svg" },
     { name: "MySQL", img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg" },
+    { name: "OOP", img: "https://cdn-icons-png.flaticon.com/512/6062/6062646.png" },
     { name: "AWS", img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg" },
-
+    { name: "Figma", img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg" },
+    { name: "GitHub", img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" },
+    { name: "Jira", img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jira/jira-original.svg" },
+    { name: "Postman", img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postman/postman-original.svg" }
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -479,123 +539,301 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const wrapper = orbit.closest('.orbit-wrapper') || orbit.parentElement;
     const centerEl = (wrapper && (wrapper.querySelector('.center-photo') || document.getElementById('myPhoto'))) || null;
-
-    const iconSize = 84; // match CSS
-    const gap = 8;
     const total = technologies.length;
-
-    function compute() {
-        const rect = orbit.getBoundingClientRect();
-        const w = rect.width || 420;
-        const h = rect.height || 420;
-        const cx = rect.left + rect.width / 2;
-        const cy = rect.top + rect.height / 2;
-        const centerSize = centerEl ? Math.max(centerEl.clientWidth, centerEl.clientHeight) : 260;
-        // conservative radius based on wrapper and center photo
-        const baseR = Math.floor(Math.min(w, h) / 2 - centerSize / 2 - iconSize / 2 - gap);
-        // ensure badges don't overlap each other: compute packing radius
-        const packingR = Math.ceil((total * (iconSize + gap)) / (2 * Math.PI));
-        // clamp maximum so badges stay inside wrapper
-        const maxR = Math.floor(Math.min(w, h) / 2 - iconSize / 2 - gap);
-        const r = Math.max(baseR, packingR, 60);
-        return { r: Math.min(r, Math.max(60, maxR)), cx, cy };
-    }
-
-    // allow pinning specific badges to fixed angles (degrees clockwise from top)
-    const pinnedDegrees = {
-        'Laravel': 40, // top-right-ish
-        'OOP': 130     // bottom-right-ish
+    const orbitState = {
+        radius: 0,
+        baseRotation: 0,
+        lastFrame: 0,
+        hoverIndex: -1,
+        motionActive: !window.matchMedia('(prefers-reduced-motion: reduce)').matches
     };
 
-    // build badges
+    function getBadgeSize() {
+        return window.innerWidth <= 768 ? 58 : 72;
+    }
+
+    function getGap() {
+        return window.innerWidth <= 768 ? 8 : 10;
+    }
+
+    function getOrbitRadius() {
+        const rect = orbit.getBoundingClientRect();
+        const wrapperSize = Math.min(rect.width || 420, rect.height || 420);
+        const badgeSize = getBadgeSize();
+        const centerSize = centerEl ? Math.max(centerEl.clientWidth, centerEl.clientHeight) : 260;
+        const minRadius = centerSize / 2 + badgeSize / 2 - 4;
+        const packedRadius = (total * (badgeSize + getGap())) / (2 * Math.PI) - 18;
+        const maxRadius = wrapperSize / 2 - badgeSize / 2 - 10;
+        return Math.min(Math.max(minRadius, packedRadius), Math.max(88, maxRadius));
+    }
+
     orbit.innerHTML = '';
-    const badges = technologies.map((tech, idx) => {
-        const badge = document.createElement('div');
+    const badges = technologies.map((tech, index) => {
+        const badge = document.createElement('button');
+        const img = document.createElement('img');
+        const startAngle = (-Math.PI / 2) + ((Math.PI * 2) / total) * index;
+
+        badge.type = 'button';
         badge.className = 'tech-badge';
         badge.setAttribute('data-tech', tech.name);
-        badge.setAttribute('role', 'button');
-        badge.setAttribute('tabindex', '0');
         badge.setAttribute('aria-label', tech.name);
-        badge.title = tech.name;
+        badge.style.setProperty('--badge-size', `${getBadgeSize()}px`);
 
-        const img = document.createElement('img');
         img.src = tech.img;
         img.alt = tech.name;
-        img.style.pointerEvents = 'none';
         badge.appendChild(img);
-
-        // starting angle (start at top). If pinned, use pinned degree.
-        let angle;
-        if (pinnedDegrees.hasOwnProperty(tech.name)) {
-            const degFromTop = pinnedDegrees[tech.name];
-            angle = -Math.PI / 2 + degFromTop * Math.PI / 180;
-        } else {
-            angle = (idx / total) * 2 * Math.PI - Math.PI / 2;
-        }
-
-        badge.style.position = 'absolute';
-        badge.style.left = '50%';
-        badge.style.top = '50%';
-        badge.style.transform = 'translate(-50%,-50%)';
-
         orbit.appendChild(badge);
-        return { badge, angle };
+
+        badge.addEventListener('mouseenter', () => {
+            orbitState.hoverIndex = index;
+        });
+
+        badge.addEventListener('mouseleave', () => {
+            orbitState.hoverIndex = -1;
+        });
+
+        badge.addEventListener('focus', () => {
+            orbitState.hoverIndex = index;
+        });
+
+        badge.addEventListener('blur', () => {
+            orbitState.hoverIndex = -1;
+        });
+
+        return { badge, startAngle };
     });
 
-    let { r } = compute();
+    function render() {
+        badges.forEach(({ badge, startAngle }, index) => {
+            const angle = startAngle + orbitState.baseRotation;
+            const x = Math.cos(angle) * orbitState.radius;
+            const y = Math.sin(angle) * orbitState.radius;
+            const isActive = orbitState.hoverIndex === index;
+            const scale = isActive ? 1.12 : 1;
+            const opacity = orbitState.hoverIndex === -1 || isActive ? 1 : 0.82;
 
-    function updatePositions() {
-        badges.forEach(b => {
-            const deg = b.angle * 180 / Math.PI;
-            b.badge.style.transform = `translate(-50%,-50%) rotate(${deg}deg) translate(${r}px) rotate(${-deg}deg)`;
+            badge.style.opacity = opacity;
+            badge.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
         });
     }
 
-    updatePositions();
-
-    // animation loop
-    let last = performance.now();
-    const speedRadPerSec = 0.55; // radians per second — tweak to taste
-    let rafId = null;
-
-    function animate(now) {
-        const dt = (now - last) / 1000;
-        last = now;
-        badges.forEach(b => b.angle += speedRadPerSec * dt);
-        updatePositions();
-        rafId = requestAnimationFrame(animate);
+    function updateLayout() {
+        orbitState.radius = getOrbitRadius();
+        badges.forEach(({ badge }) => {
+            badge.style.setProperty('--badge-size', `${getBadgeSize()}px`);
+        });
+        render();
     }
 
-    rafId = requestAnimationFrame(animate);
+    function animate(frameTime) {
+        if (!orbitState.lastFrame) {
+            orbitState.lastFrame = frameTime;
+        }
 
-    // interactions
-    badges.forEach(({ badge }) => {
-        badge.addEventListener('click', () => badge.classList.toggle('selected'));
-        badge.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                badge.click();
+        const delta = frameTime - orbitState.lastFrame;
+        orbitState.lastFrame = frameTime;
+
+        if (orbitState.motionActive && orbitState.hoverIndex === -1) {
+            orbitState.baseRotation += delta * 0.00022;
+        }
+
+        render();
+        requestAnimationFrame(animate);
+    }
+
+    updateLayout();
+    requestAnimationFrame(animate);
+
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            orbitState.lastFrame = 0;
+            updateLayout();
+        }, 120);
+    });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const toolCards = document.querySelectorAll('.tools-card');
+    if (!toolCards.length) return;
+
+    const revealCards = new IntersectionObserver((entries, observer) => {
+        entries.forEach((entry, index) => {
+            if (!entry.isIntersecting) return;
+
+            const card = entry.target;
+            setTimeout(() => {
+                card.classList.add('is-visible');
+            }, index * 120);
+            observer.unobserve(card);
+        });
+    }, {
+        threshold: 0.2
+    });
+
+    toolCards.forEach((card) => {
+        revealCards.observe(card);
+    });
+});
+
+// Project preview modal for touch/click on project cards
+(function () {
+    const modal = document.getElementById('projectModal');
+    const modalClose = document.getElementById('projectModalClose');
+    const modalImage = document.getElementById('projectModalImage');
+    const modalTitle = document.getElementById('projectModalTitle');
+    const modalKicker = document.getElementById('projectModalKicker');
+    const modalDescription = document.getElementById('projectModalDescription');
+    const modalView = document.getElementById('projectModalView');
+    const modalGithub = document.getElementById('projectModalGithub');
+    const projectItems = document.querySelectorAll('.project-preview-trigger');
+
+    if (!modal || !modalClose || !modalImage || !modalTitle || !modalKicker || !modalDescription || !modalView || !modalGithub || !projectItems.length) {
+        return;
+    }
+
+    function isUsableLink(href) {
+        return Boolean(href && href.trim() && href.trim() !== '#');
+    }
+
+    function setActionState(element, href) {
+        if (!isUsableLink(href)) {
+            element.classList.add('is-hidden');
+            element.setAttribute('tabindex', '-1');
+            element.removeAttribute('href');
+            return;
+        }
+
+        element.classList.remove('is-hidden');
+        element.removeAttribute('tabindex');
+        element.href = href;
+    }
+
+    function openModal(card) {
+        const image = card.querySelector('img');
+        const title = card.querySelector('h3');
+        const kicker = card.querySelector('.project-kicker, .featured-kicker');
+        const description = card.querySelector('p');
+        const links = card.querySelectorAll('a[href]');
+        const imageSrc = image ? image.getAttribute('src') : '';
+        const imageAlt = image ? image.getAttribute('alt') || '' : '';
+        const titleText = title ? title.textContent.trim() : 'Project Preview';
+        const kickerText = kicker ? kicker.textContent.trim() : 'Project';
+        const descriptionText = description ? description.textContent.trim() : 'Project preview';
+        const viewHref = links[0] ? links[0].getAttribute('href') : '';
+        const githubHref = Array.from(links).find((link) => /github\.com/i.test(link.getAttribute('href') || ''))?.getAttribute('href') || '';
+
+        modalImage.src = imageSrc;
+        modalImage.alt = imageAlt || titleText;
+        modalKicker.textContent = kickerText;
+        modalTitle.textContent = titleText;
+        modalDescription.textContent = descriptionText;
+        setActionState(modalView, viewHref);
+        setActionState(modalGithub, githubHref);
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+    }
+
+    projectItems.forEach((card) => {
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('role', 'button');
+
+        card.addEventListener('click', (event) => {
+            if (event.target.closest('a, button')) return;
+            openModal(card);
+        });
+
+        card.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                if (event.target.closest('a, button')) return;
+                event.preventDefault();
+                openModal(card);
             }
         });
     });
 
-    // recompute radius on resize
-    let rt;
-    window.addEventListener('resize', () => {
-        clearTimeout(rt);
-        rt = setTimeout(() => {
-            r = compute().r;
-            updatePositions();
-        }, 100);
+    modalClose.addEventListener('click', closeModal);
+    modal.addEventListener('click', (event) => {
+        if (event.target.hasAttribute('data-close-project-modal')) {
+            closeModal();
+        }
     });
 
-    // safe photo check (do not forcibly overwrite)
-    const myPhotoEl = document.getElementById('myPhoto') || document.querySelector('.center-photo');
-    if (myPhotoEl && myPhotoEl.src && myPhotoEl.src.includes('YOUR_PHOTO_URL_HERE')) {
-        // user still has placeholder; leave as-is or update from HTML
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && modal.classList.contains('is-open')) {
+            closeModal();
+        }
+    });
+})();
+
+// Soft Skills Image Lightbox
+(function () {
+    const softPhotos = document.querySelectorAll('.soft-photo');
+    const imageModal = document.getElementById('imageModal');
+    
+    if (!softPhotos.length || !imageModal) return;
+    
+    const modalImage = imageModal.querySelector('#modalImage');
+    const modalOverlay = imageModal.querySelector('.modal-overlay');
+    const modalClose = imageModal.querySelector('.modal-close');
+    
+    if (!modalImage || !modalOverlay || !modalClose) return;
+    
+    let lastTouch = 0;
+    
+    function openModal(imgSrc) {
+        modalImage.src = imgSrc;
+        imageModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
     }
-});
-
-
-
+    
+    function closeModal() {
+        imageModal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+    
+    // Click/Touch handlers
+    softPhotos.forEach(photo => {
+        photo.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            lastTouch = Date.now();
+            const imgSrc = photo.querySelector('img').src;
+            openModal(imgSrc);
+        }, { passive: false });
+        
+        photo.addEventListener('click', (e) => {
+            if (Date.now() - lastTouch < 700) return;
+            const imgSrc = photo.querySelector('img').src;
+            openModal(imgSrc);
+        });
+        
+        // Keyboard access
+        photo.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                const imgSrc = photo.querySelector('img').src;
+                openModal(imgSrc);
+            }
+        });
+    });
+    
+    // Close handlers
+    modalClose.addEventListener('click', closeModal);
+    modalOverlay.addEventListener('click', closeModal);
+    
+    // Close on Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && imageModal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+})();
 
