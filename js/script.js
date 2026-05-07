@@ -308,19 +308,7 @@ attachParallax('.project-preview');
 
 
 
-
-
-
-
-
-
-
-
-
-
 // (Old scroll-based reveal removed — using IntersectionObserver earlier)
-
-
 
 
 // Initialize marquee content once (clone for seamless loop)

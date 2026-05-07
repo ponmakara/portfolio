@@ -3886,13 +3886,6 @@ body {
     text-transform: uppercase;
 }
 
-.workshop-index {
-    color: #6b7280;
-    font-size: 0.9rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-}
-
 .hero-section {
     position: relative;
     width: 100%;
@@ -4194,15 +4187,6 @@ body {
     line-height: 1.7;
 }
 
-.soft-skills-list li:hover,
-.soft-skills-list li:focus-visible {
-    /* No hover effects */
-}
-
-.soft-skills-list li:active {
-    /* No active effects */
-}
-
 .soft-skill-icon {
     display: inline-flex;
     align-items: center;
@@ -4412,8 +4396,6 @@ footer,
     background: #ffffff;
     background-color: #ffffff;
 }
-
-
 
 
 
