@@ -61,7 +61,9 @@
                 </a>
 
                 <!-- Facebook -->
-                <a href="#" class="social-badge facebook-badge" aria-label="Facebook profile placeholder">
+                <a href="https://www.facebook.com/share/14cKkopK2dA/?mibextid=wwXIfr"
+                    class="social-badge facebook-badge" target="_blank" rel="noopener noreferrer"
+                    aria-label="Open Facebook profile">
                     <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook">
                 </a>
 
@@ -679,56 +681,81 @@
 
             <div class="soft-skills-showcase">
                 <div class="soft-skills-heading">
-                    <p class="soft-skills-kicker">something more about me</p>
+                    <p class="soft-skills-kicker">Capabilities &amp; Attitudes</p>
                     <h3>Soft Skills</h3>
+                    <p class="soft-skills-intro">The core attributes that define how I work and collaborate.</p>
                 </div>
 
-                <div class="soft-skills-layout">
-                    <div class="soft-skills-collage" aria-label="Soft skills activity photos">
-                        <figure class="soft-photo soft-photo-left" role="button" tabindex="0">
-                            <img src="./img/team.jpg" alt="Speaking and presentation activity">
-                        </figure>
-                        <figure class="soft-photo soft-photo-center" role="button" tabindex="0">
-                            <img src="./img/workwithteam.jpg" alt="Leadership and communication activity">
-                        </figure>
-                        <figure class="soft-photo soft-photo-right" role="button" tabindex="0">
-                            <img src="./img/ESD.jpg" alt="Teamwork and project activity">
-                        </figure>
+                <div class="soft-skills-gallery" aria-label="Soft skills activity photos">
+                    <figure class="soft-photo" role="button" tabindex="0">
+                        <img src="./img/team.jpg" alt="Speaking and presentation activity">
+                    </figure>
+                    <figure class="soft-photo" role="button" tabindex="0">
+                        <img src="./img/workwithteam.jpg" alt="Leadership and communication activity">
+                    </figure>
+                    <figure class="soft-photo" role="button" tabindex="0">
+                        <img src="./img/ESD.jpg" alt="Teamwork and project activity">
+                    </figure>
+                </div>
+                <!-- Lightbox Modal -->
+                <div id="imageModal" class="image-modal">
+                    <div class="modal-overlay"></div>
+                    <div class="modal-content">
+                        <button class="modal-close" aria-label="Close modal">&times;</button>
+                        <img id="modalImage" src="" alt="Expanded view">
                     </div>
-                    <!-- Lightbox Modal -->
-                    <div id="imageModal" class="image-modal">
-                        <div class="modal-overlay"></div>
-                        <div class="modal-content">
-                            <button class="modal-close" aria-label="Close modal">&times;</button>
-                            <img id="modalImage" src="" alt="Expanded view">
-                        </div>
-                    </div>
+                </div>
 
-                    <article class="soft-skills-panel">
-                        <h4>My Soft Skills</h4>
-                        <ul class="soft-skills-list">
-                            <li><span class="soft-skill-icon" aria-hidden="true">💬</span><strong>Communication</strong>
-                                helps me share ideas clearly and listen well.</li>
-                            <li><span class="soft-skill-icon" aria-hidden="true">🎤</span><strong>Presentation</strong>
-                                gives me confidence when explaining projects.</li>
-                            <li><span class="soft-skill-icon" aria-hidden="true">🔍</span><strong>Research</strong>
-                                helps me learn deeply before making decisions.</li>
-                            <li><span class="soft-skill-icon" aria-hidden="true">✅</span><strong>Responsibility</strong>
-                                keeps me dependable and accountable for my work.</li>
-                            <li><span class="soft-skill-icon" aria-hidden="true">🤝</span><strong>Solidarity</strong>
-                                reminds me to support and respect my teammates.</li>
-                            <li><span class="soft-skill-icon" aria-hidden="true">📋</span><strong>Task
-                                    Management</strong> helps me organize work and follow priorities.</li>
-                            <li><span class="soft-skill-icon" aria-hidden="true">👥</span><strong>Teamwork</strong>
-                                allows me to collaborate smoothly with others.</li>
-                            <li><span class="soft-skill-icon" aria-hidden="true">⏱️</span><strong>Time
-                                    Management</strong> helps me stay focused and meet deadlines.</li>
-                            <li><span class="soft-skill-icon" aria-hidden="true">🧠</span><strong>Problem
-                                    Solving</strong> helps me stay calm and find practical solutions.</li>
-                        </ul>
-                        <p class="soft-skills-note">These strengths support how I learn, work with people, and grow in
-                            every project.</p>
+                <div class="soft-skills-grid">
+                    <article class="soft-skill-card">
+                        <span class="soft-skill-icon" aria-hidden="true">💬</span>
+                        <h4>Communication</h4>
+                        <p>helps me share ideas clearly and listen well.</p>
                     </article>
+                    <article class="soft-skill-card">
+                        <span class="soft-skill-icon" aria-hidden="true">🎤</span>
+                        <h4>Presentation</h4>
+                        <p>gives me confidence when explaining projects.</p>
+                    </article>
+                    <article class="soft-skill-card">
+                        <span class="soft-skill-icon" aria-hidden="true">🔍</span>
+                        <h4>Research</h4>
+                        <p>helps me learn deeply before making decisions.</p>
+                    </article>
+                    <article class="soft-skill-card">
+                        <span class="soft-skill-icon" aria-hidden="true">✅</span>
+                        <h4>Responsibility</h4>
+                        <p>keeps me dependable and accountable for my work.</p>
+                    </article>
+                    <article class="soft-skill-card">
+                        <span class="soft-skill-icon" aria-hidden="true">🤝</span>
+                        <h4>Solidarity</h4>
+                        <p>reminds me to support and respect my teammates.</p>
+                    </article>
+                    <article class="soft-skill-card">
+                        <span class="soft-skill-icon" aria-hidden="true">📋</span>
+                        <h4>Task Management</h4>
+                        <p>helps me organize work and follow priorities.</p>
+                    </article>
+                    <article class="soft-skill-card">
+                        <span class="soft-skill-icon" aria-hidden="true">👥</span>
+                        <h4>Teamwork</h4>
+                        <p>allows me to collaborate smoothly with others.</p>
+                    </article>
+                    <article class="soft-skill-card">
+                        <span class="soft-skill-icon" aria-hidden="true">⏱️</span>
+                        <h4>Time Management</h4>
+                        <p>helps me stay focused and meet deadlines.</p>
+                    </article>
+                    <article class="soft-skill-card">
+                        <span class="soft-skill-icon" aria-hidden="true">🧠</span>
+                        <h4>Problem Solving</h4>
+                        <p>helps me stay calm and find practical solutions.</p>
+                    </article>
+                </div>
+
+                <div class="soft-skills-quote">
+                    <p>"These strengths support how I learn, work with people, and grow in every project."</p>
                 </div>
             </div>
         </div>
