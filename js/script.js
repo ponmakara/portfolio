@@ -14,8 +14,6 @@ function typeEffect() {
     }
 }
 
-
-
 function eraseEffect() {
     const typingElement = document.getElementById("typingText");
 
@@ -319,21 +317,25 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-document.getElementById("userForm").addEventListener("submit", function (e) {
-    e.preventDefault();
+const userForm = document.getElementById("userForm");
 
-    let name = document.getElementById("userName").value.trim();
-    let email = document.getElementById("userEmail").value.trim();
-    let msg = document.getElementById("userMessage").value.trim();
+if (userForm) {
+    userForm.addEventListener("submit", function (e) {
+        e.preventDefault();
 
-    if (!name || !email || !msg) {
-        alert("Please fill out all the fields.");
-        return;
-    }
+        const name = document.getElementById("userName")?.value.trim();
+        const email = document.getElementById("userEmail")?.value.trim();
+        const msg = document.getElementById("userMessage")?.value.trim();
 
-    alert("Your message has been sent!");
-    this.reset();
-});
+        if (!name || !email || !msg) {
+            alert("Please fill out all the fields.");
+            return;
+        }
+
+        alert("Your message has been sent!");
+        this.reset();
+    });
+}
 
 
 // Robot and Developer interactive actions
@@ -439,8 +441,30 @@ document.getElementById("userForm").addEventListener("submit", function (e) {
     if (dev) {
         const runPill = dev.querySelector('.run-pill');
         const output = dev.querySelector('.screen-output');
-        if (runPill) runPill.textContent = 'PASS';
-        if (output) output.textContent = 'BUILD SUCCESS';
+        const codeLines = dev.querySelectorAll('.screen-code .code-line:not(.cursor-line)');
+        const states = [
+            { pill: 'RUN', output: 'COMPILING MODULES' },
+            { pill: 'TEST', output: 'RUNNING TEST SUITE' },
+            { pill: 'PASS', output: 'BUILD SUCCESS' }
+        ];
+        const widths = ['34%', '42%', '48%', '56%', '64%', '72%', '84%'];
+        let stateIndex = 0;
+
+        function refreshCodeScene() {
+            const state = states[stateIndex % states.length];
+            if (runPill) runPill.textContent = state.pill;
+            if (output) output.textContent = state.output;
+
+            codeLines.forEach((line, index) => {
+                const width = widths[(stateIndex + index) % widths.length];
+                line.style.width = width;
+            });
+
+            stateIndex += 1;
+        }
+
+        refreshCodeScene();
+        setInterval(refreshCodeScene, 1800);
     }
 })();
 
@@ -675,7 +699,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalDescription = document.getElementById('projectModalDescription');
     const modalView = document.getElementById('projectModalView');
     const modalGithub = document.getElementById('projectModalGithub');
-    const projectItems = document.querySelectorAll('.project-preview-trigger');
+    const projectItems = document.querySelectorAll('.featured-project, .project-card');
 
     if (!modal || !modalClose || !modalImage || !modalTitle || !modalKicker || !modalDescription || !modalView || !modalGithub || !projectItems.length) {
         return;
@@ -700,16 +724,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function openModal(card) {
         const image = card.querySelector('img');
-        const title = card.querySelector('h3');
+        const title = card.querySelector('h3, h4');
         const kicker = card.querySelector('.project-kicker, .featured-kicker');
-        const description = card.querySelector('p');
-        const links = card.querySelectorAll('a[href]');
+        const description = card.querySelector('.featured-copy p, .project-hover p, p');
+        const links = Array.from(card.querySelectorAll('a[href]'));
         const imageSrc = image ? image.getAttribute('src') : '';
         const imageAlt = image ? image.getAttribute('alt') || '' : '';
         const titleText = title ? title.textContent.trim() : 'Project Preview';
         const kickerText = kicker ? kicker.textContent.trim() : 'Project';
         const descriptionText = description ? description.textContent.trim() : 'Project preview';
-        const viewHref = links[0] ? links[0].getAttribute('href') : '';
+        const viewLink = links.find((link) => !/github\.com/i.test(link.getAttribute('href') || ''));
+        const viewHref = viewLink ? viewLink.getAttribute('href') : '';
         const githubHref = Array.from(links).find((link) => /github\.com/i.test(link.getAttribute('href') || ''))?.getAttribute('href') || '';
 
         modalImage.src = imageSrc;
@@ -731,8 +756,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     projectItems.forEach((card) => {
-        card.setAttribute('tabindex', '0');
-        card.setAttribute('role', 'button');
+        if (!card.hasAttribute('tabindex')) {
+            card.setAttribute('tabindex', '0');
+        }
+        if (!card.hasAttribute('role')) {
+            card.setAttribute('role', 'button');
+        }
 
         card.addEventListener('click', (event) => {
             if (event.target.closest('a, button')) return;
@@ -766,28 +795,28 @@ document.addEventListener('DOMContentLoaded', () => {
 (function () {
     const softPhotos = document.querySelectorAll('.soft-photo');
     const imageModal = document.getElementById('imageModal');
-    
+
     if (!softPhotos.length || !imageModal) return;
-    
+
     const modalImage = imageModal.querySelector('#modalImage');
     const modalOverlay = imageModal.querySelector('.modal-overlay');
     const modalClose = imageModal.querySelector('.modal-close');
-    
+
     if (!modalImage || !modalOverlay || !modalClose) return;
-    
+
     let lastTouch = 0;
-    
+
     function openModal(imgSrc) {
         modalImage.src = imgSrc;
         imageModal.classList.add('active');
         document.body.style.overflow = 'hidden';
     }
-    
+
     function closeModal() {
         imageModal.classList.remove('active');
         document.body.style.overflow = 'auto';
     }
-    
+
     // Click/Touch handlers
     softPhotos.forEach(photo => {
         photo.addEventListener('touchend', (e) => {
@@ -796,13 +825,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const imgSrc = photo.querySelector('img').src;
             openModal(imgSrc);
         }, { passive: false });
-        
+
         photo.addEventListener('click', (e) => {
             if (Date.now() - lastTouch < 700) return;
             const imgSrc = photo.querySelector('img').src;
             openModal(imgSrc);
         });
-        
+
         // Keyboard access
         photo.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
@@ -812,11 +841,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
-    
+
     // Close handlers
     modalClose.addEventListener('click', closeModal);
     modalOverlay.addEventListener('click', closeModal);
-    
+
     // Close on Escape
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && imageModal.classList.contains('active')) {
@@ -824,4 +853,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 })();
-
