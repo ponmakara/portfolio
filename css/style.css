@@ -3476,8 +3476,10 @@ section[id] {
     display: flex;
     justify-content: center;
     align-items: center;
+    gap: 24px;
     margin-top: 40px;
     padding: 20px;
+    position: relative;
 }
 
 /* SIDE IMAGES */
@@ -3488,10 +3490,14 @@ section[id] {
 /* CONTACT CARD */
 .contact-card {
     width: 450px;
+    max-width: 100%;
     padding: 30px;
     border: 2px solid #1fb649;
     border-radius: 12px;
     text-align: center;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
 }
 
 .card-subtitle {
@@ -3570,6 +3576,44 @@ footer {
     .coder-scene {
         transform: scale(0.92);
         transform-origin: center bottom;
+    }
+}
+
+@media (min-width: 901px) {
+    .layout-box {
+        min-height: auto;
+        display: grid;
+        grid-template-columns: minmax(180px, 240px) minmax(320px, 450px) minmax(240px, 380px);
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .layout-box .contact-card {
+        position: relative;
+        left: auto;
+        top: auto;
+        transform: none;
+        margin: 0;
+        justify-self: center;
+    }
+
+    .layout-box .robot-stage {
+        display: flex;
+        position: relative;
+        left: auto;
+        top: auto;
+        transform: none;
+        justify-self: end;
+    }
+
+    .layout-box .coder-stage {
+        display: flex;
+        position: relative;
+        right: auto;
+        top: auto;
+        transform: none;
+        justify-self: start;
     }
 }
 
@@ -4517,10 +4561,16 @@ body {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 18px;
     margin-bottom: 18px;
+    max-width: 1280px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .soft-photo {
     margin: 0;
+    width: 100%;
+    max-width: 350px;
+    justify-self: center;
     overflow: hidden;
     border-radius: 20px;
     background: #fff;

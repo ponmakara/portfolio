@@ -13,7 +13,6 @@ function typeEffect() {
         setTimeout(() => eraseEffect(), 1500);
     }
 }
-
 function eraseEffect() {
     const typingElement = document.getElementById("typingText");
 
@@ -49,7 +48,6 @@ typeEffect();
         }
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-
     // Handle touch first (mobile). Use touchend and toggle persistent active state.
     logo.addEventListener('touchend', (e) => {
         // prevent the synthetic click that often follows touch
@@ -436,7 +434,7 @@ if (userForm) {
 
         scheduleBlink();
     }
-
+    
     // Developer coding scene: animate code running text and highlight interaction
     if (dev) {
         const runPill = dev.querySelector('.run-pill');
