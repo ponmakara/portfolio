@@ -696,10 +696,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalKicker = document.getElementById('projectModalKicker');
     const modalDescription = document.getElementById('projectModalDescription');
     const modalView = document.getElementById('projectModalView');
-    const modalGithub = document.getElementById('projectModalGithub');
+    const modalRepoPrimary = document.getElementById('projectModalRepoPrimary');
+    const modalRepoSecondary = document.getElementById('projectModalRepoSecondary');
     const projectItems = document.querySelectorAll('.featured-project, .project-card');
 
-    if (!modal || !modalClose || !modalImage || !modalTitle || !modalKicker || !modalDescription || !modalView || !modalGithub || !projectItems.length) {
+    if (!modal || !modalClose || !modalImage || !modalTitle || !modalKicker || !modalDescription || !modalView || !modalRepoPrimary || !modalRepoSecondary || !projectItems.length) {
         return;
     }
 
@@ -720,6 +721,16 @@ document.addEventListener('DOMContentLoaded', () => {
         element.href = href;
     }
 
+    function setRepoState(element, href, label) {
+        if (!isUsableLink(href)) {
+            setActionState(element, href);
+            return;
+        }
+
+        element.textContent = label || 'Repository';
+        setActionState(element, href);
+    }
+
     function openModal(card) {
         const image = card.querySelector('img');
         const title = card.querySelector('h3, h4');
@@ -733,7 +744,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const descriptionText = description ? description.textContent.trim() : 'Project preview';
         const viewLink = links.find((link) => !/github\.com/i.test(link.getAttribute('href') || ''));
         const viewHref = viewLink ? viewLink.getAttribute('href') : '';
-        const githubHref = Array.from(links).find((link) => /github\.com/i.test(link.getAttribute('href') || ''))?.getAttribute('href') || '';
+        const githubLinks = links.filter((link) => /github\.com/i.test(link.getAttribute('href') || ''));
+        const primaryRepoHref = githubLinks[0] ? githubLinks[0].getAttribute('href') : '';
+        const primaryRepoLabel = githubLinks[0] ? githubLinks[0].textContent.trim() : '';
+        const secondaryRepoHref = githubLinks[1] ? githubLinks[1].getAttribute('href') : '';
+        const secondaryRepoLabel = githubLinks[1] ? githubLinks[1].textContent.trim() : '';
 
         modalImage.src = imageSrc;
         modalImage.alt = imageAlt || titleText;
@@ -741,7 +756,8 @@ document.addEventListener('DOMContentLoaded', () => {
         modalTitle.textContent = titleText;
         modalDescription.textContent = descriptionText;
         setActionState(modalView, viewHref);
-        setActionState(modalGithub, githubHref);
+        setRepoState(modalRepoPrimary, primaryRepoHref, primaryRepoLabel);
+        setRepoState(modalRepoSecondary, secondaryRepoHref, secondaryRepoLabel);
         modal.classList.add('is-open');
         modal.setAttribute('aria-hidden', 'false');
         document.body.style.overflow = 'hidden';
